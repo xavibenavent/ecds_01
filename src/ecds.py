@@ -1,6 +1,7 @@
 # ecds.py
 
 from PyQt5.QtWidgets import QWidget, QFormLayout, QLineEdit, QTextEdit
+from random import randint
 from src.ecc import G, P, N, PrivateKey, S256Point
 
 P_STR = '2 ** 256 - 2 ** 32 - 977'
@@ -13,6 +14,8 @@ class ECDSLayout(QWidget):
         self.setWindowTitle('ECDS')
 
         form = QFormLayout()
+
+        # to align the layout in Mac OSX (this is the windows default)
         form.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
 
         # Secp256k1 parameters
@@ -82,3 +85,9 @@ class ECDSLayout(QWidget):
         self.sec_uncompressed.setText(sec_uncompressed.hex())
 
         self.address.setText(pub_key.address())
+
+        # signature
+        z = randint(0, 2 ** 256)
+        signature = self.private_key.sign(z)
+        print(signature)
+        print(pub_key.verify(z, signature))

@@ -66,7 +66,9 @@ def little_endian_to_int(b):
     '''little_endian_to_int takes byte sequence as a little-endian number.
     Returns an integer'''
     # use int.from_bytes()
-    raise NotImplementedError
+    return int.from_bytes(b, 'little')
+
+    # raise NotImplementedError
 
 
 def int_to_little_endian(n, length):

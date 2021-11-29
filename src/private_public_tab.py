@@ -1,8 +1,9 @@
 # private_public_tab.py
 
-from PyQt5.QtWidgets import QTabWidget, QFormLayout, QLineEdit
+from PyQt5.QtWidgets import QTabWidget, QFormLayout, QLineEdit, QPushButton
 from random import randint
 from src.ecc import PrivateKey, S256Point
+from src.helper import hash256, little_endian_to_int
 
 P_STR = '2 ** 256 - 2 ** 32 - 977'
 
@@ -15,6 +16,14 @@ class PrivatePublicTab(QTabWidget):
 
         # to align the layout in Mac OSX (this is the windows default)
         form_layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
+
+        form_layout.addRow('Generate secret from sentence', None)
+        generate_button = QPushButton('Generate')
+        generate_button.pressed.connect(self.new_passphrase_button)
+
+        self.passphrase = QLineEdit()
+        form_layout.addRow('Passphrase', self.passphrase)
+        form_layout.addRow('', generate_button)
 
         self.private_key = PrivateKey(secret=0)
         self.pkle = QLineEdit(str(self.private_key.secret))
@@ -41,6 +50,14 @@ class PrivatePublicTab(QTabWidget):
         form_layout.addRow('address', self.address)
 
         self.setLayout(form_layout)
+
+    def new_passphrase_button(self):
+        # encode passphrase
+        passphrase = str.encode(self.passphrase.text())
+
+        # hash256 + to little endian
+        self.private_key = little_endian_to_int(hash256(passphrase))
+        self.pkle.setText(f'{self.private_key}')
 
     def new_pk(self, text):
         if text == '' or text == '0':

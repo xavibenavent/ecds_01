@@ -34,10 +34,10 @@ class TransactionTab(QTabWidget):
     def __init__(self):
         super().__init__()
 
-        form_layout = QFormLayout()
+        self.form_layout = QFormLayout()
 
         # to align the layout in Mac OSX (this is the windows default)
-        form_layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
+        self.form_layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         # form_layout.setFormAlignment(Qt.AlignTop)
         # form_layout.setVerticalSpacing(50)
         # form_layout.setAlignment(Qt.AlignTop)
@@ -55,22 +55,29 @@ class TransactionTab(QTabWidget):
 
         self.tx = QTextEdit(HEX_TX)
         self.tx.setFixedHeight(200)
-        form_layout.addRow('Tx to parse {str}', self.tx)
-        form_layout.addRow('', controls)
+        self.form_layout.addRow('Tx to parse {str}', self.tx)
+        self.form_layout.addRow('', controls)
 
         # version
         self.version = QLineEdit()
-        form_layout.addRow('version', self.version)
+        self.form_layout.addRow('version', self.version)
 
         # inputs
         inputs = QLabel('Inputs')
-        form_layout.addRow(inputs, None)
+        self.form_layout.addRow(inputs, None)
         self.inputs_count = QLineEdit()
-        form_layout.addRow('inputs count', self.inputs_count)
+        self.form_layout.addRow('inputs count', self.inputs_count)
 
-        self.setLayout(form_layout)
+        self.form_layout.addRow('Test row to delete when parsing', None)
+
+        self.setLayout(self.form_layout)
 
     def parse_tx_button(self):
+        # delete all rows but the first 5
+        while self.form_layout.rowCount() > 5:
+            last_row = self.form_layout.rowCount() -1
+            self.form_layout.removeRow(last_row)
+
         # convert Tx in hex string format into a stream of bytes
         stream = BytesIO(bytes.fromhex(self.tx.toPlainText()))  # from a QTextEdit .toPlainText() has to be used
 
@@ -80,9 +87,10 @@ class TransactionTab(QTabWidget):
         inputs_count = self._parse_inputs_count(stream)
         self.inputs_count.setText(str(inputs_count))
 
-        # transactions
-        for tx_input in inputs_count:
+        # input transactions
+        for tx_in in range(inputs_count):
             tx_input = self._parse_tx_input(stream)
+            self.form_layout.addRow(f'#{tx_in}:', None)
 
     def _parse_version(self, stream: BytesIO) -> int:
         # get the first 4 bytes and convert to int with little endianness

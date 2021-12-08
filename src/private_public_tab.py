@@ -52,15 +52,12 @@ class PrivatePublicTab(QTabWidget):
         self.passphrase = QLineEdit()
         form_layout.addRow('Passphrase {str}', self.passphrase)
         form_layout.addRow('', controls)
-        # form_layout.addRow('', generate_button)
 
         self.private_key = PrivateKey(secret=0)
         self.pkle = QLineEdit(str(self.private_key.secret))
         self.pkle_hex = QLineEdit(str(hex(self.private_key.secret)))
         self.pkle.textChanged.connect(self.new_pk)
         self.pubkey = QLineEdit()
-        # self.pubkey_x = QLineEdit()
-        # self.pubkey_y = QLineEdit()
 
         self.wif = QLineEdit()
         self.wif_uncompressed = QLineEdit()
@@ -92,8 +89,6 @@ class PrivatePublicTab(QTabWidget):
         public_key_title.setStyleSheet(f'color: {TITLE_COLOR}')
         form_layout.addRow(public_key_title, None)
         form_layout.addRow('Point (X, Y) {hex} 64', self.pubkey)
-        # form_layout.addRow('X {hex} 64', self.pubkey_x)
-        # form_layout.addRow('Y {hex} 64', self.pubkey_y)
         form_layout.addRow('SEC COMPRESSED {hex} 66', self.sec)
         form_layout.addRow('SEC {hex} 130', self.sec_uncompressed)
         form_layout.addRow('BTC Address Compressed {base58}', self.address)
@@ -114,9 +109,6 @@ class PrivatePublicTab(QTabWidget):
         sha256x2_dig = xb_sha256(bytes_to_hash=sha256x1_dig, hex_return=False)
         self.sha256_x2.setText(sha256x2_hex.upper())
 
-        # hash256 + to little endian
-        # self.private_key = little_endian_to_int(hash256(passphrase))
-
         # set endianness string
         endianness = 'little' if self.is_little_endian else 'big'
 
@@ -136,8 +128,6 @@ class PrivatePublicTab(QTabWidget):
         self.pkle_hex.setText(hex(self.private_key.secret)[2:].upper())
         pubkey = f'({self.private_key.point.x} / {self.private_key.point.y})'
         self.pubkey.setText(pubkey.upper())
-        # self.pubkey_x.setText(str(self.private_key.point.x).upper())
-        # self.pubkey_y.setText(str(self.private_key.point.y).upper())
         self.wif.setText(self.private_key.wif())
         self.wif_uncompressed.setText(self.private_key.wif(compressed=False))
 

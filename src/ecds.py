@@ -8,7 +8,7 @@ from src.private_public_tab import PrivatePublicTab
 class ECDSLayout(QWidget):
     def __init__(self):
         super().__init__()
-        self.setGeometry(100, 100, 1200, 700)
+        self.setGeometry(25, 25, 1400, 750)
         self.setWindowTitle('ECDS')
 
         layout = QVBoxLayout()

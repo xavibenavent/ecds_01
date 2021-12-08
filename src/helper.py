@@ -1,4 +1,5 @@
 from unittest import TestCase, TestSuite, TextTestRunner
+from typing import Union
 
 import hashlib
 
@@ -24,6 +25,20 @@ def hash160(s):
 def hash256(s):
     '''two rounds of sha256'''
     return hashlib.sha256(hashlib.sha256(s).digest()).digest()
+
+
+def hash256_one_round(s):
+    '''one round of sha256'''
+    return hashlib.sha256(s).digest()
+
+
+def xb_sha256(bytes_to_hash: bytes, hex_return: bool) -> Union[bytes, str]:
+    if hex_return:
+        # return string
+        return hashlib.sha256(bytes_to_hash).hexdigest()
+    else:
+        # return bytes
+        return hashlib.sha256(bytes_to_hash).digest()
 
 
 # tag::source2[]

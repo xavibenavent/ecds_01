@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QTabWidget, QFormLayout, QLineEdit, QPushButton, QHB
 from random import randint
 from src.ecc import PrivateKey, S256Point
 from src.helper import xb_sha256
+import bech32
 
 P_STR = '2 ** 256 - 2 ** 32 - 977'
 
@@ -65,6 +66,8 @@ class PrivatePublicTab(QTabWidget):
         self.sec_uncompressed = QLineEdit()
         self.address = QLineEdit()
         self.address_uncompressed = QLineEdit()
+        self.address_uncompressed = QLineEdit()
+        self.address_32 = QLineEdit()
 
         hash_title = QLabel('Hash algorithm')
         hash_title.setStyleSheet(f'color: {TITLE_COLOR}')
@@ -93,6 +96,7 @@ class PrivatePublicTab(QTabWidget):
         form_layout.addRow('SEC {hex} 130', self.sec_uncompressed)
         form_layout.addRow('BTC Address Compressed {base58}', self.address)
         form_layout.addRow('BTC Address {base58}', self.address_uncompressed)
+        form_layout.addRow('BTC Address {Bech32}', self.address_32)
 
         self.setLayout(form_layout)
 
@@ -140,6 +144,27 @@ class PrivatePublicTab(QTabWidget):
 
         self.address.setText(pub_key.address(compressed=True, testnet=self.is_testnet))
         self.address_uncompressed.setText(pub_key.address(compressed=False, testnet=self.is_testnet))
+
+        """
+        def toBytes(self):
+        if (self.y % 2 != 0):
+            return b"\x03" + self.x.to_bytes(32, "big")
+        return b"\x02" + self.x.to_bytes(32, "big")
+
+        def getPublicKeyHash(privkey):
+            SPEC256k1 = Point()
+            pk = int.from_bytes(privkey, "big")
+            hash160 = ripemd160(sha256((SPEC256k1 * pk).toBytes()))
+            address = bech32.encode('bc', 0, hash160)
+            return address
+        
+        def getWif(privkey):
+            wif = b"\x80" + privkey + b"\x01"
+            wif = b58(wif + sha256(sha256(wif))[:4])
+            return wif
+        """
+        hash160 = pub_key.hash160(compressed=True)
+        self.address_32.setText(bech32.encode('bc', 0, hash160))
 
         # signature
         z = randint(0, 2 ** 256)

@@ -3,10 +3,12 @@
 
 from secrets import token_hex
 from hashlib import sha256
+import hmac
 from src.xb_classes.xb_helper import encode_base58_checksum
+from src.programming_bitcoin_classes.ecc import N, G, Signature
 
 PRIVATE_KEY_BYTES_LENGTH = 32
-N = 0XFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+# N = 0XFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 
 
 class XBPrivateKey:
@@ -25,7 +27,6 @@ class XBPrivateKey:
 
         # private key in HEX
         self.key_hex = f'{self.key_int:x}'.zfill(64)
-
 
     """
     constructor-like method to create a random private key
@@ -77,6 +78,40 @@ class XBPrivateKey:
         prefix = b'\xef' if testnet else b'\x80'
         suffix = b'\x01' if compressed else b''
         return encode_base58_checksum(prefix + key_bytes + suffix)
+
+    def sign(self, z: int) -> Signature:  # z is hash256 of the thing being signed
+        k = self.deterministic_k(z)
+        # r is the x coordinate of the resulting point k*G
+        r = (k * G).x.num
+        # remember 1/k = pow(k, N-2, N)
+        k_inv = pow(k, N - 2, N)
+        # s = (z+r*secret) / k
+        s = (z + r * self.key_int) * k_inv % N
+        if s > N / 2:
+            s = N - s
+        # return an instance of Signature:
+        # Signature(r, s)
+        return Signature(r, s)
+
+    def deterministic_k(self, z: int) -> int:
+        k = b'\x00' * 32
+        v = b'\x01' * 32
+        if z > N:
+            z -= N
+        z_bytes = z.to_bytes(32, 'big')
+        secret_bytes = self.key_int.to_bytes(32, 'big')
+        s256 = sha256
+        k = hmac.new(k, v + b'\x00' + secret_bytes + z_bytes, s256).digest()
+        v = hmac.new(k, v, s256).digest()
+        k = hmac.new(k, v + b'\x01' + secret_bytes + z_bytes, s256).digest()
+        v = hmac.new(k, v, s256).digest()
+        while True:
+            v = hmac.new(k, v, s256).digest()
+            candidate = int.from_bytes(v, 'big')
+            if candidate >= 1 and candidate < N:
+                return candidate
+            k = hmac.new(k, v + b'\x00', s256).digest()
+            v = hmac.new(k, v, s256).digest()
 
 
 if __name__ == '__main__':

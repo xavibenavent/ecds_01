@@ -3,32 +3,40 @@
 
 from secrets import token_hex
 from hashlib import sha256
+from src.xb_classes.xb_helper import encode_base58_checksum
 
 PRIVATE_KEY_BYTES_LENGTH = 32
+N = 0XFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 
 
 class XBPrivateKey:
     """
-    :param key_hex private key in HEX
+    :param key_int private key as an int number
     """
-    def __init__(self, key_hex: str):
+    def __init__(self, key_int: int):
         # check param validity
-        if not isinstance(key_hex, str) or len(key_hex) != PRIVATE_KEY_BYTES_LENGTH * 2:  # each byte 2 hex digits
-            raise Exception('Private key not valid')
+        if key_int < 1 or key_int >= N:
+            raise Exception('Private key not valid [out of range [1, N)')
 
         # private key value in HEX
-        self.key = key_hex
+        self.key_int = key_int
 
-        # todo: private key compressed WIF format
-        self.cwif = None
+        self.relative_position = key_int / N * 100
+
+        # private key in HEX
+        self.key_hex = f'{self.key_int:x}'.zfill(64)
+
 
     """
     constructor-like method to create a random private key
     """
     @classmethod
     def from_random(cls):
+        # generate random
         key_hex = token_hex(32)
-        return cls(key_hex=key_hex)
+        # convert to int
+        key_int = int(key_hex, 16)
+        return cls(key_int=key_int)
 
     """
     constructor-like method to create a private key from a 32 bytes HEX string
@@ -36,7 +44,10 @@ class XBPrivateKey:
     """
     @classmethod
     def from_hex(cls, key_hex: str):
-        return cls(key_hex=key_hex)
+        # validate HEX string
+        if len(key_hex) > PRIVATE_KEY_BYTES_LENGTH * 2:
+            raise Exception('max length must be 64 char (32 bytes)')
+        return cls(key_int=int(key_hex, 16))
 
     """
     constructor-like method to create a private key from a passphrase
@@ -45,7 +56,7 @@ class XBPrivateKey:
     @classmethod
     def from_passphrase(cls, passphrase: str):
         key_hex = cls._passphrase_to_hex(passphrase)
-        return cls(key_hex)
+        return cls(key_int=int(key_hex, 16))
 
     """
     method to add custom complexity at the conversion process from passphrase to private key in HEX
@@ -61,25 +72,21 @@ class XBPrivateKey:
         third_hash = sha256(combined.encode()).hexdigest()
         return third_hash
 
-    def wif(self, compressed=True, testnet=False):
-        secret_bytes = self.key.to_bytes(32, 'big')
-        if testnet:
-            prefix = b'\xef'
-        else:
-            prefix = b'\x80'
-        if compressed:
-            suffix = b'\x01'
-        else:
-            suffix = b''
-        return encode_base58_checksum(prefix + secret_bytes + suffix)
+    def get_wif(self, compressed=True, testnet=False) -> str:
+        key_bytes = self.key_int.to_bytes(32, 'big')
+        prefix = b'\xef' if testnet else b'\x80'
+        suffix = b'\x01' if compressed else b''
+        return encode_base58_checksum(prefix + key_bytes + suffix)
 
 
 if __name__ == '__main__':
     a = XBPrivateKey.from_random()
-    print(a.key)
+    print(a.key_hex)
+    print(a.relative_position)
+    print(a.get_wif(compressed=True, testnet=False))
 
-    b = XBPrivateKey.from_hex(a.key)
-    print(b.key)
+    b = XBPrivateKey.from_hex(a.key_hex)
+    print(b.key_hex)
 
-    c = XBPrivateKey.from_passphrase('')
-    print(c.key)
+    c = XBPrivateKey.from_passphrase('aloha2')
+    print(c.key_hex)

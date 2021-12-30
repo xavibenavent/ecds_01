@@ -64,9 +64,9 @@ OP_EQUALVERIFY OP_CHECKSIG
 
 from unittest import TestCase
 
-from helper import little_endian_to_int, read_varint
+from src.programming_bitcoin_classes.helper import little_endian_to_int, read_varint
 from script import Script
-from tx import Tx, TxIn, TxOut
+from src.programming_bitcoin_classes.tx import Tx, TxIn, TxOut
 
 
 methods = []

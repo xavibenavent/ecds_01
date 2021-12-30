@@ -1,7 +1,7 @@
 # secp256k1_tab.py
 
-from PyQt5.QtWidgets import QTabWidget, QFormLayout, QLineEdit, QTextEdit
-from src.ecc import G, P, N
+from PyQt5.QtWidgets import QTabWidget, QFormLayout, QLineEdit
+from src.programming_bitcoin_classes.ecc import G, P, N
 
 P_STR = '2 ** 256 - 2 ** 32 - 977'
 

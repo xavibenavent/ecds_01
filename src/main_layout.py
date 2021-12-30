@@ -1,12 +1,12 @@
-# ecds.py
+# main_layout.py
 
-from PyQt5.QtWidgets import QWidget, QFormLayout, QLineEdit, QTextEdit, QVBoxLayout, QTabWidget
-from src.secp256k1_tab import Secp256k1
-from src.private_public_tab import PrivatePublicTab
-from src.transaction_tab import TransactionTab
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTabWidget
+from src.tabs.secp256k1_tab import Secp256k1
+from src.tabs.private_public_tab import PrivatePublicTab
+from src.tabs.transaction_tab import TransactionTab
 
 
-class ECDSLayout(QWidget):
+class MainLayout(QWidget):
     def __init__(self):
         super().__init__()
         self.setGeometry(25, 25, 1400, 750)

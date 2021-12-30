@@ -2,8 +2,8 @@
 
 from PyQt5.QtWidgets import QTabWidget, QFormLayout, QLineEdit, QPushButton, QHBoxLayout, QCheckBox, QLabel
 from random import randint
-from src.ecc import PrivateKey, S256Point
-from src.helper import xb_sha256
+from src.programming_bitcoin_classes.ecc import PrivateKey, S256Point
+from src.programming_bitcoin_classes.helper import xb_sha256
 import bech32
 
 P_STR = '2 ** 256 - 2 ** 32 - 977'

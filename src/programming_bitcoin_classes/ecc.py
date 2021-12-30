@@ -5,7 +5,7 @@ from unittest import TestCase
 import hashlib
 import hmac
 
-from helper import encode_base58_checksum, hash160
+from src.programming_bitcoin_classes.helper import encode_base58_checksum, hash160
 
 
 class FieldElement:

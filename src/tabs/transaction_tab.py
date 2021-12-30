@@ -1,9 +1,8 @@
 # transaction_tab.py
 
-from typing import Any
 from io import BytesIO
 from PyQt5.QtWidgets import QTabWidget, QFormLayout, QLineEdit, QPushButton, QHBoxLayout, QTextEdit, QLabel
-from src.helper import read_varint
+from src.programming_bitcoin_classes.helper import read_varint
 from src.tx_input import TxInput
 
 
